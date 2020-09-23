@@ -3,8 +3,8 @@ import numpy as np
 
 # Use machine learning to create a model that predicts which passengers survived the Titanic shipwreck.
 
-train = pd.read_csv('./titanic/train.csv')
-test = pd.read_csv('./titanic/test.csv')
+train = pd.DataFrame(pd.read_csv('./titanic/train.csv'))
+test = pd.DataFrame(pd.read_csv('./titanic/test.csv'))
 
 
 # print(train.keys())
@@ -21,12 +21,13 @@ def informationGain(left, right, current_uncertainty):
 
 	p = float(len(left)) / (len(left) + len(right))
 
-	return current_uncertainty - p * calculateGini(left['labels']) - (1 - p) * calculateGini(right['labels'])
+	return current_uncertainty - p * calculateGini(left['labels'].to_list) - (1 - p) * calculateGini(right['labels'].to_list)
 
 
 
 def makeQuestionAndParition(data, key, value):
-	if value.isnumeric():
+
+	if str(value).isnumeric():
 		question = f'{key} >= {value}?'
 		if len(data.loc[data[key].isnull()]) != 0:
 			true_Data, false_Data = data.loc[data[key] >= value], data.loc[data[key] < value]
@@ -55,7 +56,7 @@ def findBestSplit(data):
 	best_question = None
 
 	# calculates impurity
-	current_uncertainity = calculateGini(data['labels'])
+	current_uncertainity = calculateGini(data['label'].to_list())
 
 	# key is the column name, column is the data in that column
 	for key, column in data.items():
@@ -115,8 +116,9 @@ def buildDecisionTree(data):
 
 if __name__ == "__main__":
 	data = {'id': [0, 1, 2, 3, 4, 5], 'height': [10, 20, 40, 50, 100, 20], 'label': [0, 0, 0, 1, 1, 0]}
-	c = train['Name']
-	name = c[0]
-	true_Data, false_Data, nan = train.loc[c == name], train.loc[c != name], train.loc[c.isnull()]
+	df = pd.DataFrame(data)
+	trainingData = df[['height', 'label']].copy()
+	print(trainingData['label'][0])
+	gain, question = findBestSplit(trainingData)
+	print(gain,question)
 
-	print(f'{len(train)}, {len(true_Data) + len(false_Data)}')
