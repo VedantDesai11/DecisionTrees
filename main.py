@@ -15,7 +15,8 @@ class Decision_Node:
 
 
 class Leaf:
-	def __init__(self, rows):
+	def __init__(self, data):
+		rows = list(data)
 		unique_labels = list(set(rows))
 		self.predictions = {}
 		for unique_label in unique_labels:
@@ -113,12 +114,35 @@ def calculateGini(labels_list):
 	return impurity
 
 
+def print_tree(node, spacing=""):
+	"""World's most elegant tree printing function."""
+
+	# Base case: we've reached a leaf
+	if isinstance(node, Leaf):
+		print(spacing + "Predict", node.predictions)
+		return
+
+	# Print the question at this node
+	try:
+		print(spacing + str(node.question))
+	except:
+		print(node)
+
+	# Call this function recursively on the true branch
+	print(spacing + '--> True:')
+	print_tree(node.true_branch, spacing + "  ")
+
+	# Call this function recursively on the false branch
+	print(spacing + '--> False:')
+	print_tree(node.false_branch, spacing + "  ")
+
+
 def buildDecisionTree(data):
 	# Find info gain and best question at this node.
 	info_gain, question, true_Data, false_Data = findBestSplit(data)
 
 	if info_gain == 0:
-		return Leaf(list(data['label']))
+		return Leaf(data['label'])
 
 	True_answers = buildDecisionTree(true_Data)
 	False_answers = buildDecisionTree(false_Data)
@@ -133,25 +157,8 @@ if __name__ == "__main__":
 	#print(buildDecisionTree(trainingData))
 
 	Tree = buildDecisionTree(trainingData)
-
-	def print_tree(node, spacing=""):
-		"""World's most elegant tree printing function."""
-
-		# Base case: we've reached a leaf
-		if isinstance(node, Leaf):
-			print(spacing + "Predict", node.predictions)
-			return
-
-		# Print the question at this node
-		print(spacing + str(node.question))
-
-		# Call this function recursively on the true branch
-		print(spacing + '--> True:')
-		print_tree(node.true_branch, spacing + "  ")
-
-		# Call this function recursively on the false branch
-		print(spacing + '--> False:')
-		print_tree(node.false_branch, spacing + "  ")
+	a = Leaf(list(data['label']))
+	print(a.predictions[0], a.predictions[1])
 
 	print_tree(Tree)
 
